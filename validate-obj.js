@@ -26,6 +26,10 @@
     this.isInclude = function(name) {
       return u.find(this.errors, function(error) { return error.name == name });
     };
+
+    this.add = function(name, message) {
+      return this.errors.push(new Error(name, message));
+    };
   };
 
   var funcAttrName = '__validator-obj__';

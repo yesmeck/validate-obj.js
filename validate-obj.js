@@ -166,7 +166,7 @@
   };
 
   var ret = {
-    hasErrors: function (target, validationExpression /*, name, errs*/) {
+    validate: function (target, validationExpression /*, name, errs*/) {
       var name = arguments[2] || 'it'; // used to recursive call and calculate the full name
       var errs = arguments[3] || []; // used to recursive call and collect the errors
       var selfCrossValidators;
@@ -190,7 +190,7 @@
         if(!u.isArray(target)) return [m.sprintf('%s is not array', name)];
         if(!m.isValidationExpression(validationExpression[0])) {
           u.each(target, function(o, no) {
-            errs = u.union(errs, ret.hasErrors((m.existy(o) ? o : {}), validationExpression[0], m.sprintf('%s[%s]', name, no)));
+            errs = u.union(errs, ret.validate((m.existy(o) ? o : {}), validationExpression[0], m.sprintf('%s[%s]', name, no)));
           })
           return m.emptyToNull(errs);
         }
@@ -208,7 +208,7 @@
       }
       u.each(validationExpression, function (validators, propName) {
         if (propName === selfCrossValidatorPropName) return;
-        errs = u.union(errs, ret.hasErrors((m.existy(target) ? target : {})[propName], validators, name + '.' + propName))
+        errs = u.union(errs, ret.validate((m.existy(target) ? target : {})[propName], validators, name + '.' + propName))
       });
 
       return m.emptyToNull(errs);

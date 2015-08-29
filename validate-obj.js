@@ -19,9 +19,13 @@
   var Errors = function(errors) {
     this.errors = errors;
 
+    this.isEmpty = function() {
+      return this.errors.length == 0;
+    };
+
     this.isInclude = function(name) {
       return u.find(this.errors, function(error) { return error.name == name });
-    }
+    };
   };
 
   var funcAttrName = '__validator-obj__';

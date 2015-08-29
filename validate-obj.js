@@ -17,7 +17,7 @@
   };
 
   var Errors = function(errors) {
-    this.errors = errors;
+    this.errors = errors || [];
 
     this.isEmpty = function() {
       return this.errors.length == 0;

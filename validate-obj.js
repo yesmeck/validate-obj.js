@@ -11,8 +11,15 @@
     this[name] = definition();
   }
 })('validate-obj', function (validator) {
+  var Error = function(name, message) {
+    this.name = name
+    this.message = message
+  };
+
   var funcAttrName = '__validator-obj__';
+
   var selfCrossValidatorPropName = 'selfCrossValidators';
+
   var u = { // small set of underscore
     each: function(collection, fn) {
       if (u.isArray(collection)) {
@@ -118,6 +125,7 @@
     identity: function(i) {return i;},
     first: function(list) {return list[0];}
   };
+
   var m = { // internal functions
     emptyToNull: function(list) {
       var ret = u.filter(list, u.identity);
@@ -242,90 +250,113 @@
 
   ret.register('required', ret.build(
     function(value) {return m.existy(value) && (value !== '');},
-    function(name) {return  name + ' is required';}
+    function(name) { return new Error(name, name + ' is required'); }
   ));
+
   ret.register('isDate', ret.build(
     u.isDate,
-    function(name) {return m.sprintf('%s is not date', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not date', name)); }
   ));
+
   ret.register('isBool', ret.build(
     u.isBoolean,
-    function(name) {return m.sprintf('%s is not bool', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not bool', name)); }
   ));
+
   ret.register('isString', ret.build(
     u.isString,
-    function(name) {return m.sprintf('%s is not string', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not string', name)); }
   ));
+
   ret.register('isNumber', ret.build(
     u.isNumber,
-    function(name) {return m.sprintf('%s is not number', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not number', name)); }
   ));
+
   ret.register('isIn',ret.build(
     function (value, params) {
       if(!u.isArray(params)) throw m.sprintf('isIn has to have a array options parameter like v.isIn([\'option1\', \'option2\'])');
       return u.contains(params, value);
     },
     function (name, params) {
-      return m.sprintf('%s must be one of (%s)', name,
-                       u.reduce(params, function(whole, opt) {return m.sprintf('%s, %s', whole, opt);}));
+      var message = m.sprintf(
+        '%s must be one of (%s)',
+        name,
+        u.reduce(params, function(whole, opt) {
+          return m.sprintf('%s, %s', whole, opt);
+        })
+      );
+      return new Error(name, message);
     }
   ));
+
   ret.register('minLength', ret.build(
     function(value, params) {
       if(!u.isArray(params) || params.length !== 1 || !u.isNumber(u.first(params))) throw m.sprintf('minLengTh MUST have one number in the params array');
       return u.isString(value) && value.length >= u.first(params);
     },
-    function(name, params) {return m.sprintf('%s must be a string and have at least %s characters', name, params[0]); }
+    function(name, params) {
+      var message = m.sprintf('%s must be a string and have at least %s characters', name, params[0]);
+      return new Error(name, message);
+    }
   ));
+
   ret.register('maxLength', ret.build(
     function(value, params) {
       if(!u.isArray(params) || params.length !== 1 || !u.isNumber(u.first(params))) throw m.sprintf('maxLengTh MUST have one number in the params array');
       return u.isString(value) && value.length <= u.first(params);
     },
-    function(name, params) {return m.sprintf('%s must be a string and have at most %s characters', name, params[0]); }
+    function(name, params) {
+      var message = m.sprintf('%s must be a string and have at most %s characters', name, params[0]);
+      return new Error(name, message);
+    }
   ));
+
   ret.register('isEmail', ret.build(
     function(value) {
       // This magic string is coming from http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(value);
     },
-    function(name) {return m.sprintf('%s is not email', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not email', name)); }
   ));
+
   ret.register('isCreditCard', ret.build(
     function(value){
       // This magic string is coming from http://www.informit.com/articles/article.aspx?p=1223879&seqNum=12
       var re = /^(5[1-5]\d{14})|(4\d{12}(\d{3})?)|(3[47]\d{13})|(6011\d{14})|((30[0-5]|36\d|38\d)\d{11})$/;
       return re.test(value);
     },
-    function(name) {return m.sprintf('%s is not credit card number', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not credit card number', name)); }
   ));
+
   ret.register('isUrl', ret.build(
     function(value) {
       var re = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       return re.test(value);
     },
-    function(name){return m.sprintf('%s is not url', name);}
+    function(name){ return new Error(name, m.sprintf('%s is not url', name)); }
   ));
+
   ret.register('isBefore', ret.build(
     function(value, params) {
       if(!u.isArray(params) || params.length !==1 || !u.isDate(u.first(params))) throw m.sprintf('isBefore must have one date in the params array');
       return value < u.first(params);
     },
-    function(name) {return m.sprintf('%s is not before', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not before', name)); }
   ));
   ret.register('isAfter', ret.build(
     function(value, params) {
       if(!u.isArray(params) || params.length !==1 || !u.isDate(u.first(params))) throw m.sprintf('isAfter must have one date in the params array');
       return value > u.first(params);
     },
-    function(name) {return m.sprintf('%s is not after', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not after', name)); }
   ));
   ret.register('isObject', ret.build(
     function(value, params) {
       return u.isObject(value)
     },
-    function(name) {return m.sprintf('%s is not object', name);}
+    function(name) { return new Error(name, m.sprintf('%s is not object', name)); }
   ))
   return ret;
 });

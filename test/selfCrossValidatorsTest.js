@@ -11,8 +11,8 @@ describe ('SelfCrossValidators', function() {
 				return undefined;
 			}
 		};
-		expect(v.hasErrors({password:'123', matchedPassword: '123'}, schema)).to.equal(null);
-		expect(v.hasErrors({password:'123', matchedPassword: 'a23'}, schema)).to.include('passwords do not match');
+		expect(v.validate({password:'123', matchedPassword: '123'}, schema)).to.equal(null);
+		expect(v.validate({password:'123', matchedPassword: 'a23'}, schema)).to.include('passwords do not match');
 	});
 
 	it ('function array should work', function() {
@@ -26,7 +26,7 @@ describe ('SelfCrossValidators', function() {
 				}
 			]
 		};
-		expect(v.hasErrors({password:'123', matchedPassword: '123'}, schema)).to.equal(null);
-		expect(v.hasErrors({password:'123', matchedPassword: 'a23'}, schema)).to.include('passwords do not match');
+		expect(v.validate({password:'123', matchedPassword: '123'}, schema)).to.equal(null);
+		expect(v.validate({password:'123', matchedPassword: 'a23'}, schema)).to.include('passwords do not match');
 	});
 });

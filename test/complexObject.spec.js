@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 describe('invalid validation expression', function() {
   it('int is invalid validation expression', function(done) {
     try{
-      v.hasErrors({}, 1);
+      v.validate({}, 1);
     }
     catch(e)
     {
@@ -13,17 +13,17 @@ describe('invalid validation expression', function() {
     }
   });
   it('isNumber is valid expression', function() {
-    v.hasErrors({}, v.isNumber);
+    v.validate({}, v.isNumber);
   })
 });
 
 describe('nested obj', function() {
   it ('right 1 level should pass', function() {
-    var ret = v.hasErrors({a:1, b:'s', c:new Date()}, {a: v.isNumber, b: v.isString, c: v.isDate});
+    var ret = v.validate({a:1, b:'s', c:new Date()}, {a: v.isNumber, b: v.isString, c: v.isDate});
     expect(ret).to.equal(null);
   });
   it ('wrong 1 level should pass', function() {
-    var ret = v.hasErrors({a:'a', b:'s', c:new Date()}, {a: v.isNumber, b: v.isString, c: v.isDate, d: v.required});
+    var ret = v.validate({a:'a', b:'s', c:new Date()}, {a: v.isNumber, b: v.isString, c: v.isDate, d: v.required});
     console.log(ret)
     expect(ret).to.include('it.a is not number');
     expect(ret).to.include('it.d is required');
@@ -44,7 +44,7 @@ describe('nested obj', function() {
     });
 
     it('right 2 level should pass', function() {
-      var ret =v.hasErrors( {
+      var ret =v.validate( {
         total: 10.95,
         happenedOn: new Date(),
         customer: {
@@ -56,7 +56,7 @@ describe('nested obj', function() {
     });
 
     it('wrong 2nd level should not pass', function() {
-      var ret =v.hasErrors( {
+      var ret =v.validate( {
         total: 10.95,
         happenedOn: new Date(),
         customer: {
@@ -69,7 +69,7 @@ describe('nested obj', function() {
     });
 
     it('missed 1 level node should not pass', function() {
-      var ret =v.hasErrors( {
+      var ret =v.validate( {
         total: 10.95,
         happenedOn: new Date()
       }, validationExpression);
@@ -80,23 +80,23 @@ describe('nested obj', function() {
 
   describe('simple array', function() {
     it('array expression with non array target should not ok', function() {
-      expect(v.hasErrors(1, [[v.isNumber]])).to.include('it is not array');
+      expect(v.validate(1, [[v.isNumber]])).to.include('it is not array');
     });
 
     it('non array expression with array target should not ok', function() {
-      expect(v.hasErrors([1], v.isNumber)).to.include('it is not number');
+      expect(v.validate([1], v.isNumber)).to.include('it is not number');
     });
 
     it('array express with array target should be ok', function() {
-      expect(v.hasErrors([1], [[v.isNumber]])).to.equal(null);
+      expect(v.validate([1], [[v.isNumber]])).to.equal(null);
     });
 
     it('array of int should pass required', function() {
-      expect(v.hasErrors([1,2], v.required)).to.equal(null);
+      expect(v.validate([1,2], v.required)).to.equal(null);
     });
 
     it('array of undefined should not pass', function() {
-      var ret = v.hasErrors([1, undefined, null], [[v.required]]);
+      var ret = v.validate([1, undefined, null], [[v.required]]);
 
       expect(ret).to.include('it[1] is required');
       expect(ret).to.include('it[2] is required');
@@ -119,7 +119,7 @@ describe('nested obj', function() {
           sku: v.isNumber
         }]
       };
-      var ret = v.hasErrors(target, expression);
+      var ret = v.validate(target, expression);
       expect(ret).is.include('it.items is not array');
     });
 
@@ -138,7 +138,7 @@ describe('nested obj', function() {
           sku: v.isNumber
         }]
       };
-      var ret = v.hasErrors(target, expression);
+      var ret = v.validate(target, expression);
       expect(ret.length).to.equal(1);
       expect(ret).is.include('it.items[0].sku is not number');
     });
@@ -161,7 +161,7 @@ describe('nested obj', function() {
           sku: v.isNumber
         }]
       };
-      var ret = v.hasErrors(target, expression);
+      var ret = v.validate(target, expression);
       expect(ret.length).to.equal(2);
       expect(ret).is.include('it.items[1].sku is not number');
       expect(ret).is.include('it.items[0].no is not string');
@@ -182,7 +182,7 @@ describe('nested obj', function() {
           sku: v.isNumber
         }]
       };
-      var ret = v.hasErrors(target, expression);
+      var ret = v.validate(target, expression);
       expect(ret).is.equal(null);
     });
   });

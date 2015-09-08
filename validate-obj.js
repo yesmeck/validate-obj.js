@@ -139,7 +139,8 @@
       return ret;
     },
     identity: function(i) {return i;},
-    first: function(list) {return list[0];}
+    first: function(list) {return list[0];},
+    last: function(list) {return list[list.length - 1];}
   };
 
   var m = { // internal functions
@@ -273,27 +274,47 @@
 
   ret.register('required', ret.build(
     function(value) {return m.existy(value) && (value !== '');},
-    function(name) { return ret.error(name, name + ' is required'); }
+    function(name, params) {
+      params = params || [];
+      var message = u.last(params) ||  name + ' is required';
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isDate', ret.build(
     u.isDate,
-    function(name) { return ret.error(name, m.sprintf('%s is not date', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not date', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isBool', ret.build(
     u.isBoolean,
-    function(name) { return ret.error(name, m.sprintf('%s is not bool', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not bool', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isString', ret.build(
     u.isString,
-    function(name) { return ret.error(name, m.sprintf('%s is not string', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not string', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isNumber', ret.build(
     u.isNumber,
-    function(name) { return ret.error(name, m.sprintf('%s is not number', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not number', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isIn',ret.build(
@@ -302,7 +323,8 @@
       return u.contains(params, value);
     },
     function (name, params) {
-      var message = m.sprintf(
+      params = params || []
+      var message = u.last(params) || m.sprintf(
         '%s must be one of (%s)',
         name,
         u.reduce(params, function(whole, opt) {
@@ -319,7 +341,8 @@
       return u.isString(value) && value.length >= u.first(params);
     },
     function(name, params) {
-      var message = m.sprintf('%s must be a string and have at least %s characters', name, params[0]);
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s must be a string and have at least %s characters', name, params[0]);
       return ret.error(name, message);
     }
   ));
@@ -330,7 +353,8 @@
       return u.isString(value) && value.length <= u.first(params);
     },
     function(name, params) {
-      var message = m.sprintf('%s must be a string and have at most %s characters', name, params[0]);
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s must be a string and have at most %s characters', name, params[0]);
       return ret.error(name, message);
     }
   ));
@@ -341,7 +365,11 @@
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return re.test(value);
     },
-    function(name) { return ret.error(name, m.sprintf('%s is not email', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not email', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isCreditCard', ret.build(
@@ -350,7 +378,11 @@
       var re = /^(5[1-5]\d{14})|(4\d{12}(\d{3})?)|(3[47]\d{13})|(6011\d{14})|((30[0-5]|36\d|38\d)\d{11})$/;
       return re.test(value);
     },
-    function(name) { return ret.error(name, m.sprintf('%s is not credit card number', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not credit card number', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isUrl', ret.build(
@@ -358,7 +390,11 @@
       var re = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       return re.test(value);
     },
-    function(name){ return ret.error(name, m.sprintf('%s is not url', name)); }
+    function(name, params){
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not url', name);
+      return ret.error(name, message);
+    }
   ));
 
   ret.register('isBefore', ret.build(
@@ -366,20 +402,32 @@
       if(!u.isArray(params) || params.length !==1 || !u.isDate(u.first(params))) throw m.sprintf('isBefore must have one date in the params array');
       return value < u.first(params);
     },
-    function(name) { return ret.error(name, m.sprintf('%s is not before', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not before', name);
+      return ret.error(name, message);
+    }
   ));
   ret.register('isAfter', ret.build(
     function(value, params) {
       if(!u.isArray(params) || params.length !==1 || !u.isDate(u.first(params))) throw m.sprintf('isAfter must have one date in the params array');
       return value > u.first(params);
     },
-    function(name) { return ret.error(name, m.sprintf('%s is not after', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not after', name);
+      return ret.error(name, message);
+    }
   ));
   ret.register('isObject', ret.build(
     function(value, params) {
       return u.isObject(value)
     },
-    function(name) { return ret.error(name, m.sprintf('%s is not object', name)); }
+    function(name, params) {
+      params = params || []
+      var message = u.last(params) || m.sprintf('%s is not object', name);
+      return ret.error(name, message);
+    }
   ))
   return ret;
 });

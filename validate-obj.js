@@ -337,7 +337,6 @@
 
   ret.register('minLength', ret.build(
     function(value, params) {
-      if(!u.isArray(params) || params.length !== 1 || !u.isNumber(u.first(params))) throw m.sprintf('minLengTh MUST have one number in the params array');
       return u.isString(value) && value.length >= u.first(params);
     },
     function(name, params) {
@@ -349,7 +348,6 @@
 
   ret.register('maxLength', ret.build(
     function(value, params) {
-      if(!u.isArray(params) || params.length !== 1 || !u.isNumber(u.first(params))) throw m.sprintf('maxLengTh MUST have one number in the params array');
       return u.isString(value) && value.length <= u.first(params);
     },
     function(name, params) {
